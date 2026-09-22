@@ -33,8 +33,11 @@ def _secrets() -> dict:
 
 def _api(method: str, **params):
     token = _secrets()["telegram_bot_token"]
-    r = requests.post(f"https://api.telegram.org/bot{token}/{method}", json=params, timeout=30)
-    data = r.json()
+    try:
+        r = requests.post(f"https://api.telegram.org/bot{token}/{method}", json=params, timeout=30)
+        data = r.json()
+    except Exception as e:  # requests 예외 메시지에는 토큰이 든 URL 이 그대로 찍힌다 — 가리고 다시 던진다
+        raise RuntimeError(f"telegram {method} 연결 실패: {str(e).replace(token, '<token>')[:300]}") from None
     if not data.get("ok"):
         raise RuntimeError(f"telegram {method}: {data}")
     return data["result"]

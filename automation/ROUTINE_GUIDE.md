@@ -9,7 +9,7 @@
 
 ```bash
 cd /home/user/sbs_biz            # GitHub 저장소명은 sbs_biz (밑줄). 클론 경로가 다르면 그 경로
-git pull --ff-only
+git fetch -q origin main && git checkout -q -B main origin/main   # 클라우드 체크아웃은 HEAD 가 detached 로 올 때가 있다
 python3 -m pip install -q -r requirements.txt
 ```
 
