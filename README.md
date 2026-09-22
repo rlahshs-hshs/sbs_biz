@@ -21,9 +21,14 @@ SBS Biz 아침 방송 **모닝벨**(07:00~09:00)을 매일 요약해 텔레그�
 API 키가 필요 없다(루틴이 곧 Claude). 텔레그램 비밀값은 클라우드 환경의 환경변수
 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` 로 준다.
 
-단, **클라우드 IP 는 유튜브 봇 확인에 걸려 자막을 못 받는다** (2026-09-22 확인). 그래서 자막은 유튜브 접근이
-되는 곳(노트북 또는 VM)에서 `push_transcript.py` 가 받아 `data/transcripts/` 에 커밋·푸시하고, 루틴은 그걸 읽는다.
-루틴 시각(10:30 KST) 전에 올라와 있어야 하며, 없으면 루틴이 10분 간격 6회 기다린 뒤 SKIP 한다.
+단, **클라우드 IP 는 유튜브 봇 확인에 걸려 자막을 못 받는다** (2026-09-22 확인 — Anthropic 클라우드 환경도,
+네이버클라우드 VM 도 막힘. deno·player_client 변경으로도 안 됨. 가정 회선만 된다). 그래서 자막은 **노트북**에서
+`push_transcript.py` 가 받아 `data/transcripts/` 에 커밋·푸시하고, 루틴은 그걸 읽는다.
+
+노트북 쪽은 Windows 작업 스케줄러 `sbs-biz 자막 업로드` (평일 10:05 부터 30분 간격 2시간, 놓치면 켜질 때 실행,
+`pythonw.exe -X utf8 push_transcript.py`, 로그 `logs/push_transcript.log`). 루틴 시각(10:30 KST) 전에 올라와
+있어야 하며, 없으면 루틴이 10분 간격 6회 기다린 뒤 SKIP 한다. `deploy/vm_setup.sh` 는 VM 이 막히기 전에 만든 것으로,
+VM IP 가 풀리면 쓸 수 있다.
 
 **로컬 (예비).** `run.py` 가 수집·요약·전송을 묶는다. 요약은 `summarize.py` 가 Claude API 로 하므로
 `anthropic_api_key` 가 필요하다. 실행 환경은 자체 `.venv` (Python 3.11).
