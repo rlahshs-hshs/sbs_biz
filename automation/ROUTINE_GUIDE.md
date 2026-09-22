@@ -16,8 +16,9 @@ python3 -m pip install -q -r requirements.txt
 오늘 날짜는 **KST** 기준이다 (`TZ=Asia/Seoul date +%F`). 루틴은 UTC 로 돈다는 것을 잊지 말 것.
 토·일에는 방송이 없다. `summaries/YYYYMMDD.md` 가 이미 있으면 오늘치는 끝난 것이니 그대로 종료한다.
 
-텔레그램 비밀값은 환경변수 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` 로 들어온다 (`tg.py` 가 읽는다).
-둘 중 하나라도 비어 있으면 요약·커밋까지만 하고 전송은 건너뛰되, 마지막 보고에 그 사실을 적는다.
+텔레그램 비밀값은 환경변수 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (소문자여도 됨) 로 들어온다. 유무 확인은
+반드시 `python3 tg.py check` 로 한다 (값은 출력하지 않는다. `printenv` 로 값을 찍지 말 것).
+둘 중 하나라도 없으면 요약·커밋까지만 하고 전송은 건너뛰되, 마지막 보고에 그 사실을 적는다.
 
 ## 1. 자막 확보
 

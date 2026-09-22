@@ -20,8 +20,10 @@ SECRETS = ROOT / "secrets.json"
 
 def _secrets() -> dict:
     """환경변수(클라우드 루틴) 우선, 없으면 secrets.json(로컬)."""
-    env = {"telegram_bot_token": os.environ.get("TELEGRAM_BOT_TOKEN", ""),
-           "telegram_chat_id": os.environ.get("TELEGRAM_CHAT_ID", "")}
+    def _env(name: str) -> str:  # 리눅스 환경변수는 대소문자를 구분한다 — 소문자로 넣은 경우도 받는다
+        return os.environ.get(name.upper()) or os.environ.get(name.lower()) or ""
+
+    env = {"telegram_bot_token": _env("TELEGRAM_BOT_TOKEN"), "telegram_chat_id": _env("TELEGRAM_CHAT_ID")}
     if all(env.values()):
         return env
     if not SECRETS.exists():
@@ -71,5 +73,10 @@ if __name__ == "__main__":
     elif cmd == "send-file":
         send(Path(sys.argv[2]).read_text(encoding="utf-8").strip())
         print("sent")
+    elif cmd == "check":  # 비밀값 유무만 출력 (값은 절대 출력하지 않는다)
+        s = _secrets()
+        for k in ("telegram_bot_token", "telegram_chat_id"):
+            print(f"{k}: {'있음' if s.get(k) else '없음'}")
+        sys.exit(0 if all(s.get(k) for k in ("telegram_bot_token", "telegram_chat_id")) else 1)
     else:
         print(__doc__)
