@@ -7,7 +7,7 @@
 ## 0. 준비
 
 ```bash
-cd /home/user/sbs-biz            # 클론 경로가 다르면 그 경로
+cd /home/user/sbs_biz            # GitHub 저장소명은 sbs_biz (밑줄). 클론 경로가 다르면 그 경로
 git pull --ff-only
 python3 -m pip install -q -r requirements.txt
 ```
