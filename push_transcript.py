@@ -9,11 +9,11 @@ import datetime as dt
 import subprocess
 import sys
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 from fetch import OUT, get_transcript
 
 ROOT = Path(__file__).resolve().parent
+KST = dt.timezone(dt.timedelta(hours=9))  # Windows 파이썬엔 tzdata 가 없어 zoneinfo 를 못 쓴다
 
 
 def git(*args: str) -> str:
@@ -24,7 +24,7 @@ def git(*args: str) -> str:
 
 
 def main(argv: list[str]) -> int:
-    day = dt.date.fromisoformat(argv[0]) if argv else dt.datetime.now(ZoneInfo("Asia/Seoul")).date()
+    day = dt.date.fromisoformat(argv[0]) if argv else dt.datetime.now(KST).date()
     if day.weekday() >= 5:
         print(f"{day} 주말 — 방송 없음")
         return 0
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     if sys.stdout is None:  # pythonw.exe (작업 스케줄러, 창 없음) — 출력을 로그 파일로
         (ROOT / "logs").mkdir(exist_ok=True)
         sys.stdout = sys.stderr = open(ROOT / "logs" / "push_transcript.log", "a", encoding="utf-8")
-    print(f"--- {dt.datetime.now(ZoneInfo('Asia/Seoul')):%Y-%m-%d %H:%M} KST")
+    print(f"--- {dt.datetime.now(KST):%Y-%m-%d %H:%M} KST")
     try:
         code = main(sys.argv[1:])
     except Exception as e:  # 스케줄러에서는 예외도 로그에 남아야 한다
