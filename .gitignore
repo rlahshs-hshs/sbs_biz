@@ -7,3 +7,4 @@ data/transcripts/*
 !data/transcripts/*.txt
 !data/transcripts/*.json
 logs/
+!data/krx_names.csv

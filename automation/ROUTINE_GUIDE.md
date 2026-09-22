@@ -54,9 +54,15 @@ PYTHONUTF8=1 python3 fetch.py            # data/transcripts/YYYYMMDD.txt 생성
 요약을 `summaries/YYYYMMDD.md` 에 저장한다. 파일 끝에 빈 줄 하나와 `원본: https://www.youtube.com/watch?v=...`
 (video_id 는 `data/transcripts/YYYYMMDD.json` 에 있다) 를 붙인다.
 
-자기 점검 네 가지: (1) 사실 섹션에 방송에 없는 내용이 들어가지 않았는가 (2) "관련:" 뒤 종목은 방송에서 실제 언급됐는가
+"주목할 만한 것"의 "종목:" 줄에 회사명을 적기 전에 **상장 여부를 파일로 확인**한다:
+
+```bash
+grep -F "에스오에스랩" data/krx_names.csv     # 있으면 ticker,name,market 한 줄. 없으면 그 이름은 쓰지 않는다
+```
+
+자기 점검 다섯 가지: (1) 사실 섹션에 방송에 없는 내용이 들어가지 않았는가 (2) "→" 뒤 종목은 방송에서 실제 언급됐는가
 (3) 출연자 의견이 이슈 항목에 사실처럼 섞이지 않았는가 (4) "주목할 만한 것"에서 방송에 없던 종목을 연결했으면
-(내 연결) 표시를 했고, 매수·매도·가격 언급이 없는가.
+(내 연결) 표시를 했고, 매수·매도·가격 언급이 없는가 (5) "종목:" 줄의 회사명은 전부 `data/krx_names.csv` 에서 grep 으로 확인했는가.
 
 ## 3. 전송
 
