@@ -19,18 +19,29 @@ python3 -m pip install -q -r requirements.txt
 텔레그램 비밀값은 환경변수 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` 로 들어온다 (`tg.py` 가 읽는다).
 둘 중 하나라도 비어 있으면 요약·커밋까지만 하고 전송은 건너뛰되, 마지막 보고에 그 사실을 적는다.
 
-## 1. 자막 수집
+## 1. 자막 확보
+
+**우선순위 1 — 저장소에 이미 있는 자막.** 유튜브 접근이 되는 곳(노트북·VM)이 `push_transcript.py` 로
+`data/transcripts/YYYYMMDD.txt` + `.json` 을 커밋해 둔다. 클라우드 IP 는 유튜브 봇 확인에 걸리므로 이게 정상 경로다.
+
+```bash
+ls -la data/transcripts/ | grep "$(TZ=Asia/Seoul date +%Y%m%d)"
+```
+
+있으면 2단계로 간다. 없으면 보통 KST 10~11시 사이에 올라오니 **10분 간격으로 최대 6번** `git pull --ff-only` 후 다시 확인한다
+(`sleep 600`).
+
+**우선순위 2 — 직접 수집 (보통 실패한다).** 6번 뒤에도 없으면 한 번만 시도한다:
 
 ```bash
 PYTHONUTF8=1 python3 fetch.py            # data/transcripts/YYYYMMDD.txt 생성
 ```
 
 - 정상: `2026년 9월 22일 (화) 모닝벨 다시보기 -> data/transcripts/20260922.txt (120,052 bytes)` 같은 한 줄.
-- `다시보기가 아직 채널에 없다` → 보통 KST 11시 전에 올라온다. **10분 간격으로 최대 6번** 다시 시도한다
-  (`sleep 600`). 그래도 없으면 `summaries/YYYYMMDD_SKIP.md` 에 "다시보기 미업로드, HH:MM KST 기준" 한 줄을 남기고
-  4단계(커밋)로 간다. 전송은 하지 않는다.
+- `다시보기가 아직 채널에 없다` → `summaries/YYYYMMDD_SKIP.md` 에 "다시보기 미업로드, HH:MM KST 기준" 한 줄.
 - yt-dlp 가 YouTube 봇 확인("Sign in to confirm you're not a bot") 등으로 막히면 `summaries/YYYYMMDD_SKIP.md` 에
-  오류 메시지 앞 300자를 적고 커밋한다. **다른 우회 방법을 시도하지 않는다** — 사용자가 판단할 문제다.
+  오류 메시지 앞 300자를 적는다. **다른 우회 방법(쿠키·프록시 등)을 시도하지 않는다** — 사용자가 판단할 문제다.
+- 어느 쪽이든 SKIP 이면 4단계(커밋)로 가고 전송은 하지 않는다.
 - 자막이 30,000 바이트 미만이면 뭔가 잘못된 것이다(정상은 100KB 안팎). SKIP 처리하고 크기를 적는다.
 
 ## 2. 요약 작성

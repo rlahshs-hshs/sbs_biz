@@ -17,9 +17,13 @@ SBS Biz 아침 방송 **모닝벨**(07:00~09:00)을 매일 요약해 텔레그�
 ## 실행 경로 두 가지
 
 **클라우드 루틴 (기본).** Claude Code 루틴이 평일 아침 `automation/ROUTINE_GUIDE.md` 를 읽고 그대로 한다 —
-자막 수집 → 루틴(Claude)이 직접 `SUMMARY_FORMAT.md` 대로 요약 → 텔레그램 전송 → `summaries/` 커밋·푸시.
+저장소의 자막 읽기 → 루틴(Claude)이 직접 `SUMMARY_FORMAT.md` 대로 요약 → 텔레그램 전송 → `summaries/` 커밋·푸시.
 API 키가 필요 없다(루틴이 곧 Claude). 텔레그램 비밀값은 클라우드 환경의 환경변수
 `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` 로 준다.
+
+단, **클라우드 IP 는 유튜브 봇 확인에 걸려 자막을 못 받는다** (2026-09-22 확인). 그래서 자막은 유튜브 접근이
+되는 곳(노트북 또는 VM)에서 `push_transcript.py` 가 받아 `data/transcripts/` 에 커밋·푸시하고, 루틴은 그걸 읽는다.
+루틴 시각(10:30 KST) 전에 올라와 있어야 하며, 없으면 루틴이 10분 간격 6회 기다린 뒤 SKIP 한다.
 
 **로컬 (예비).** `run.py` 가 수집·요약·전송을 묶는다. 요약은 `summarize.py` 가 Claude API 로 하므로
 `anthropic_api_key` 가 필요하다. 실행 환경은 자체 `.venv` (Python 3.11).
