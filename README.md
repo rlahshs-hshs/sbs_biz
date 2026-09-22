@@ -33,6 +33,9 @@ API 키가 필요 없다(루틴이 곧 Claude). 텔레그램 비밀값은 클라
 로컬 비밀값은 `secrets.json` (gitignore): `telegram_bot_token`, `telegram_chat_id`, `anthropic_api_key`.
 두 경로 모두 요약 지시문은 `SUMMARY_FORMAT.md` 하나를 쓴다.
 
+요약 끝에는 "주목할 만한 것 (Claude 의견)" 섹션이 붙는다 — 기준은 국내 상장 종목·업종으로 이어지는가 하나.
+매수·매도·가격은 안 쓴다. `summaries/` 가 git 에 남으므로 이 의견도 날짜와 함께 기록되는 셈이다.
+
 ## 원장 규칙 (ledger/picks.jsonl)
 
 선별은 전적으로 내 감이다. 감에는 규칙을 두지 않는다. 대신 **기록**에는 규칙을 둔다 —
