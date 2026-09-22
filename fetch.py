@@ -8,6 +8,7 @@
 import datetime as dt
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -19,8 +20,15 @@ OUT = ROOT / "data" / "transcripts"
 PROGRAM = "모닝벨"
 
 
+def _js_runtime_args() -> list[str]:
+    """yt-dlp 2026+ 는 YouTube 에 JS 런타임(deno)이 필요하다. PATH 에 없으면 ~/.deno/bin 도 본다."""
+    deno = shutil.which("deno") or next((p for p in [Path.home() / ".deno" / "bin" / "deno"] if p.exists()), None)
+    return ["--js-runtimes", f"deno:{deno}"] if deno else []
+
+
 def _ytdlp(*args: str) -> str:
-    r = subprocess.run([PY, "-m", "yt_dlp", *args], capture_output=True, text=True, encoding="utf-8", errors="replace")
+    r = subprocess.run([PY, "-m", "yt_dlp", *_js_runtime_args(), *args],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0:
         raise RuntimeError(f"yt-dlp 실패: {r.stderr[-800:]}")
     return r.stdout
