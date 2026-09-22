@@ -9,6 +9,7 @@
 """
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -54,12 +55,35 @@ def get_chat_id() -> list[tuple[int, str]]:
     return list(seen.items())
 
 
-def send(text: str, chat_id: str | None = None) -> None:
-    """마크다운 없이 평문 전송. 4096자 넘으면 나눠 보낸다."""
+def to_html(text: str) -> str:
+    """요약의 `**굵게**` 만 텔레그램 HTML <b> 로 바꾸고 나머지는 전부 이스케이프한다."""
+    escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escaped)
+
+
+def _chunks(text: str, limit: int = 3800) -> list[str]:
+    """빈 줄(섹션·항목 경계)에서만 나눠 한 메시지가 limit 를 넘지 않게 한다."""
+    parts, cur = [], ""
+    for block in text.split("\n\n"):
+        cand = f"{cur}\n\n{block}" if cur else block
+        if len(cand) > limit and cur:
+            parts.append(cur)
+            cur = block
+        else:
+            cur = cand
+    if cur:
+        parts.append(cur)
+    return parts
+
+
+def send(text: str, chat_id: str | None = None, html: bool = True) -> None:
+    """요약 전송. `**굵게**` 는 굵은체로, 길면 섹션 경계에서 나눠 보낸다."""
     chat_id = chat_id or _secrets()["telegram_chat_id"]
-    limit = 4000
-    for i in range(0, len(text), limit):
-        _api("sendMessage", chat_id=chat_id, text=text[i:i + limit], disable_web_page_preview=True)
+    for part in _chunks(text):
+        params = dict(chat_id=chat_id, text=to_html(part) if html else part, disable_web_page_preview=True)
+        if html:
+            params["parse_mode"] = "HTML"
+        _api("sendMessage", **params)
 
 
 if __name__ == "__main__":
