@@ -6,3 +6,4 @@ data/*
 data/transcripts/*
 !data/transcripts/*.txt
 !data/transcripts/*.json
+logs/

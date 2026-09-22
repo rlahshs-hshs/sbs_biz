@@ -51,4 +51,14 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    if sys.stdout is None:  # pythonw.exe (작업 스케줄러, 창 없음) — 출력을 로그 파일로
+        (ROOT / "logs").mkdir(exist_ok=True)
+        sys.stdout = sys.stderr = open(ROOT / "logs" / "push_transcript.log", "a", encoding="utf-8")
+    print(f"--- {dt.datetime.now(ZoneInfo('Asia/Seoul')):%Y-%m-%d %H:%M} KST")
+    try:
+        code = main(sys.argv[1:])
+    except Exception as e:  # 스케줄러에서는 예외도 로그에 남아야 한다
+        print(f"오류: {e}")
+        code = 1
+    sys.stdout.flush()
+    sys.exit(code)
