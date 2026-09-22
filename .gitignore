@@ -1,4 +1,8 @@
 secrets.json
 .venv/
 __pycache__/
-data/
+data/*
+!data/transcripts/
+data/transcripts/*
+!data/transcripts/*.txt
+!data/transcripts/*.json
