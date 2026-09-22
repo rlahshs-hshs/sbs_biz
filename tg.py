@@ -1,7 +1,7 @@
 """텔레그램 전송 헬퍼.
 
 비밀값은 환경변수 TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID (클라우드 루틴) 가 있으면 그것,
-없으면 secrets.json (로컬, gitignore).
+없으면 secrets.json (로컬, gitignore). chat_id 는 쉼표로 여러 개 가능 ("111,222" → 두 사람에게).
 
     .venv\\Scripts\\python.exe tg.py chat-id        # 봇에게 아무 말이나 보낸 뒤 실행 → chat_id 출력
     .venv\\Scripts\\python.exe tg.py send "테스트"   # 전송 테스트
@@ -77,13 +77,16 @@ def _chunks(text: str, limit: int = 3800) -> list[str]:
 
 
 def send(text: str, chat_id: str | None = None, html: bool = True) -> None:
-    """요약 전송. `**굵게**` 는 굵은체로, 길면 섹션 경계에서 나눠 보낸다."""
-    chat_id = chat_id or _secrets()["telegram_chat_id"]
-    for part in _chunks(text):
-        params = dict(chat_id=chat_id, text=to_html(part) if html else part, disable_web_page_preview=True)
-        if html:
-            params["parse_mode"] = "HTML"
-        _api("sendMessage", **params)
+    """요약 전송. `**굵게**` 는 굵은체로, 길면 섹션 경계에서 나눠 보낸다.
+    chat_id 가 쉼표로 여러 개면(예: 본인,배우자) 각각에게 보낸다."""
+    ids = [c.strip() for c in str(chat_id or _secrets()["telegram_chat_id"]).split(",") if c.strip()]
+    parts = _chunks(text)
+    for cid in ids:
+        for part in parts:
+            params = dict(chat_id=cid, text=to_html(part) if html else part, disable_web_page_preview=True)
+            if html:
+                params["parse_mode"] = "HTML"
+            _api("sendMessage", **params)
 
 
 if __name__ == "__main__":
