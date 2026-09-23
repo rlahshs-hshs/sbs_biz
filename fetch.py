@@ -8,6 +8,7 @@
 """
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -28,8 +29,11 @@ def _js_runtime_args() -> list[str]:
 
 
 def _ytdlp(*args: str) -> str:
+    # Windows 에서 부모가 -X utf8 없이 떠도 자식 yt-dlp 는 항상 UTF-8 로 쓰게 한다.
+    # 아니면 cp949 로 나온 제목을 utf-8 로 읽어 깨지고, '모닝벨' 매칭이 실패해 "다시보기 없음"으로 오판한다.
+    env = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
     r = subprocess.run([PY, "-m", "yt_dlp", *_js_runtime_args(), *args],
-                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
     if r.returncode != 0:
         raise RuntimeError(f"yt-dlp 실패: {r.stderr[-800:]}")
     return r.stdout
