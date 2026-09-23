@@ -2,6 +2,7 @@
 
     .venv\\Scripts\\python.exe fetch.py            # 오늘
     .venv\\Scripts\\python.exe fetch.py 2026-09-22
+    .venv\\Scripts\\python.exe fetch.py 2026-09-23 CW6eqfRnjHc   # 목록 조회가 못 찾을 때 영상 ID 직접 지정
 
 산출: data/transcripts/YYYYMMDD.txt  (이미 있으면 다시 받지 않는다)
 """
@@ -70,14 +71,19 @@ def vtt_to_text(vtt: str) -> str:
     return "\n".join(lines)
 
 
-def get_transcript(day: dt.date) -> tuple[Path, dict]:
-    """해당 날짜 자막 파일 경로와 메타(json) 를 돌려준다. 없으면 받아서 만든다."""
+def get_transcript(day: dt.date, video_id: str | None = None) -> tuple[Path, dict]:
+    """해당 날짜 자막 파일 경로와 메타(json) 를 돌려준다. 없으면 받아서 만든다.
+    video_id 를 주면 채널 목록 조회를 건너뛰고 그 영상을 바로 받는다 (목록 조회가 영상을 못 찾을 때 수동 우회)."""
     OUT.mkdir(parents=True, exist_ok=True)
     txt = OUT / f"{day:%Y%m%d}.txt"
     meta = OUT / f"{day:%Y%m%d}.json"
     if txt.exists() and meta.exists():
         return txt, json.loads(meta.read_text(encoding="utf-8"))
-    found = find_replay(day)
+    if video_id:
+        title = _ytdlp("--skip-download", "--print", "%(title)s", f"https://www.youtube.com/watch?v={video_id}").strip()
+        found = (video_id, title)
+    else:
+        found = find_replay(day)
     if not found:
         raise FileNotFoundError(f"{day} {PROGRAM} 다시보기가 아직 채널에 없다")
     vid, title = found
@@ -89,5 +95,5 @@ def get_transcript(day: dt.date) -> tuple[Path, dict]:
 
 if __name__ == "__main__":
     day = dt.date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else dt.date.today()
-    path, info = get_transcript(day)
+    path, info = get_transcript(day, sys.argv[2] if len(sys.argv) > 2 else None)
     print(info["title"], "->", path, f"({path.stat().st_size:,} bytes)")

@@ -2,6 +2,7 @@
 
     python3 push_transcript.py              # 오늘 (KST)
     python3 push_transcript.py 2026-09-22
+    python3 push_transcript.py 2026-09-23 CW6eqfRnjHc   # 목록 조회가 못 찾을 때 영상 ID 직접 지정
 
 다시보기가 아직 없으면 종료코드 2 (스케줄러가 다시 부르게). 이미 저장소에 있으면 아무것도 안 하고 0.
 """
@@ -34,7 +35,7 @@ def main(argv: list[str]) -> int:
         print(f"이미 저장소에 있음: {txt.name}")
         return 0
     try:
-        path, info = get_transcript(day)
+        path, info = get_transcript(day, argv[1] if len(argv) > 1 else None)
     except FileNotFoundError as e:
         print(e)
         return 2
